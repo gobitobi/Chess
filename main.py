@@ -18,6 +18,7 @@ BLACK = (118,150,86)
 HIGHLIGHT_COLOR = (186, 202, 68)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
 
 def load_images():
     pieces = ['P', 'R', 'N', 'B', 'Q', 'K', 'p', 'r', 'n', 'b', 'q', 'k']
