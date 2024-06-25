@@ -12,6 +12,12 @@ BOARD_WIDTH, BOARD_HEIGHT = 800, 800
 WIN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Chess Game")
 
+
+# ADDED COMMENT AS A TEST
+TEST = True
+TEST2 = False
+awdas = 10
+
 # Colors
 WHITE = (238,238,210)
 BLACK = (118,150,86)
