@@ -90,7 +90,7 @@ def get_square_under_mouse():
     tile_size = BOARD_WIDTH // 8 # BOARD_WIDTH == BOARD_HEIGHT
     
     row = y // tile_size
-    col = x // tile_size
+    col = x // tile_size 
     
     return chess.square(col, row) # 0 - 63
 
