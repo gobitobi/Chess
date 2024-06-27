@@ -32,9 +32,9 @@ def load_images():
     images = {}
     for piece in pieces:
         if piece.isupper():
-            images[piece] = pygame.image.load(f"assets/white/{piece}.png")
+            images[piece] = pygame.image.load(os.path.join("Chess", f"assets/white/{piece}.png"))
         else:
-            images[piece] = pygame.image.load(f"assets/black/{piece}.png")
+            images[piece] = pygame.image.load(os.path.join("Chess", f"assets/black/{piece}.png"))
     
     for key in images:
         tile_size = BOARD_WIDTH // 8
