@@ -24,8 +24,6 @@ BLUE = (0, 0, 255)
 GRAY = (100, 100, 100)
 
 
-
-
 def main():
     run = True
     clock = pygame.time.Clock()
@@ -56,7 +54,7 @@ def main():
                 square = get_square_under_mouse()
                 print(board)
                 if selected_square is None:
-                    if board.piece_at(square) is not None:
+                    if board.piece_at(square) is not None and board.turn == board.piece_at(square).color:
                         selected_square = square
                         is_valid_moves_showing = True
                         # draw_valid_moves(WIN, board)
@@ -83,7 +81,7 @@ def main():
         draw_pieces(WIN, board, images)
         draw_text(WIN, board)
         if is_valid_moves_showing:
-            draw_valid_moves(WIN, board)
+            draw_valid_moves(WIN, board, selected_square)
         draw_game_end_screen(WIN, game_end_screen)
         pygame.display.update()
 

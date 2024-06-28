@@ -45,6 +45,7 @@ def draw_board(win, selected_square):
             if selected_square and chess.square(col, row) == selected_square:
                 pygame.draw.rect(win, HIGHLIGHT_COLOR, (col * tile_size, row * tile_size, tile_size, tile_size))
 
+
 def draw_pieces(win, board, images):
     tile_size = BOARD_WIDTH // 8
     for row in range(8):
@@ -104,9 +105,11 @@ def draw_game_end_screen(win, game_end_screen):
         
         
 ################################################################################################        
-def draw_valid_moves(win, board, move=None):
+def draw_valid_moves(win, board, selected_square, move=None):
     print(board.legal_moves)
-    legal_moves = [str(move) for move in list(board.legal_moves)]
+    # legal_moves = [str(move) for move in list(board.legal_moves)]
+    legal_moves = [str(move) for move in board.legal_moves if move.from_square == selected_square]
+
     print(legal_moves)
     """
     a8 = 0, 0
@@ -137,3 +140,12 @@ def draw_valid_moves(win, board, move=None):
     
     for pos in moves:
         pygame.draw.circle(win, (100, 100, 100), pos, 10)
+        
+def get_legal_moves_for_piece(board, piece_square):
+    # Get all legal moves
+    legal_moves = list(board.legal_moves)
+    
+    # Filter moves to get only those involving the selected piece
+    piece_moves = [move for move in legal_moves if move.from_square == piece_square]
+    
+    return piece_moves
