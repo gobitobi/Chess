@@ -17,6 +17,7 @@ class MyChessGame():
         self.is_game_running = True
         
         self.board = chess.Board()
+        self.undone_moves_stack = []
         self.selected_square = None
         self.game_end_screen = False
         self.is_valid_moves_showing = False
@@ -135,19 +136,46 @@ class MyChessGame():
         
         for pos in moves:
             pygame.draw.circle(self.SCREEN, (100, 100, 100), pos, 10)
+
+    def undo_last_move(self):
+        if self.board.move_stack:
+            last_move = self.board.pop()
+            self.undone_moves_stack.append(last_move)
+            return last_move
+        else:
+            print("No move to undo.")
+            return None
+
+# Function to redo the last undone move
+    def redo_last_move(self):
+        if self.undone_moves_stack:
+            move = self.undone_moves_stack.pop()
+            self.board.push(move)
+            return move
+        else:
+            print("No move to redo.")
+            return None
             
     def handle_user_interaction(self, event):
+        self.handle_key_down(event)
+        self.handle_mouse_click(event)
         
+    def handle_key_down(self, event):
         if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_r:
-                    self.board.reset()
-                    self.game_end_screen = False
-                if event.key == pygame.K_u:
-                    if self.board.move_stack:
-                        self.board.pop()
-                if event.key == pygame.K_m:
-                    self.draw_valid_moves(self.SCREEN, self.board)
-            
+            if event.key == pygame.K_r:
+                self.board.reset()
+                self.game_end_screen = False
+            if event.key == pygame.K_u:
+                if self.board.move_stack:
+                    self.board.pop()
+            if event.key == pygame.K_m:
+                self.draw_valid_moves(self.SCREEN, self.board)
+            if event.key == pygame.K_LEFT:
+                self.undo_last_move()
+            if event.key == pygame.K_RIGHT:
+                self.redo_last_move()
+                
+    def handle_mouse_click(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
             square = self.get_square_under_mouse()
             print(self.board)
@@ -158,10 +186,8 @@ class MyChessGame():
                     # draw_valid_moves(WIN, self.board)
             else:
                 move = chess.Move(self.selected_square, square)
-                # print(move.uci())
                 if move in self.board.legal_moves:
                     self.board.push(move)
-                    # self.board.push_san((str(move)))
                     
                     if self.board.is_stalemate():
                         print("STALEMATE")
@@ -169,7 +195,7 @@ class MyChessGame():
                     if self.board.is_checkmate():
                         print("CHECKMATE")
                         self.game_end_screen = True
-                    # flipped = not flipped 
+                        
                 self.selected_square = None
                 self.is_valid_moves_showing = False
                 
