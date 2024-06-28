@@ -2,15 +2,19 @@ import pygame
 import chess
 import os
 
-class Game():
-    def __init__(self, screen, screen_width, screen_height):
+class MyChessGame():
+    def __init__(self, screen_width, screen_height):
         pygame.init()
         pygame.font.init() # you have to call this at the start, 
         self.FONT = pygame.font.SysFont('Arial', 30)
         self.SCREEN_WIDTH, self.SCREEN_HEIGHT = screen_width, screen_height
         self.BOARD_WIDTH, self.BOARD_HEIGHT = 800, 800
         self.TILE_SIZE = self.BOARD_WIDTH // 8
-        self.SCREEN = screen
+        self.SCREEN = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
+        self.CLOCK = pygame.time.Clock()
+        self.FPS = 60
+        
+        self.is_game_running = True
         
         self.board = chess.Board()
         self.selected_square = None
@@ -133,6 +137,7 @@ class Game():
             pygame.draw.circle(self.SCREEN, (100, 100, 100), pos, 10)
             
     def handle_user_interaction(self, event):
+        
         if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:
                     self.board.reset()
@@ -176,3 +181,24 @@ class Game():
         if self.is_valid_moves_showing:
             self.draw_valid_moves()
         self.draw_game_end_screen()
+        
+    def run(self):
+
+        while self.is_game_running:
+            self.CLOCK.tick(self.FPS)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.is_game_running = False
+                
+                self.handle_user_interaction(event)
+                
+            
+            
+            self.draw()
+            pygame.display.update()
+            
+
+if __name__ == "__main__":
+    SCREEN_WIDTH, SCREEN_HEIGHT = 1200, 800
+    game = MyChessGame(SCREEN_WIDTH, SCREEN_HEIGHT)
+    game.run()
