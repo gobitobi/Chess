@@ -38,10 +38,8 @@ class MyChessGame():
         pieces = ['P', 'R', 'N', 'B', 'Q', 'K', 'p', 'r', 'n', 'b', 'q', 'k']
         images = {}
         for piece in pieces:
-            if piece.isupper():
-                images[piece] = pygame.image.load(os.path.join("Chess", f"assets/white/{piece}.png"))
-            else:
-                images[piece] = pygame.image.load(os.path.join("Chess", f"assets/black/{piece}.png"))
+            piece_color = "white" if piece.isupper() else "black"
+            images[piece] = pygame.image.load(os.path.join("Chess", f"assets/{piece_color}/{piece}.png"))
         
         for key in images:
             images[key] = pygame.transform.scale(images[key], (self.TILE_SIZE, self.TILE_SIZE))
@@ -185,7 +183,15 @@ class MyChessGame():
                     self.is_valid_moves_showing = True
                     # draw_valid_moves(WIN, self.board)
             else:
-                move = chess.Move(self.selected_square, square)
+                promotion_piece = None
+                # Check if a pawn is being moved to the opposite side
+                is_piece_at_selected_square_a_pawn = self.board.piece_at(self.selected_square).piece_type == chess.PAWN
+                is_piece_rank_0_or_7 = (chess.square_rank(square) == 0 or chess.square_rank(square) == 7)
+                
+                if is_piece_at_selected_square_a_pawn and is_piece_rank_0_or_7:
+                    promotion_piece = chess.QUEEN  # Default to queen for simplicity, can add user prompt here
+                    
+                move = chess.Move(self.selected_square, square, promotion=promotion_piece)
                 if move in self.board.legal_moves:
                     self.board.push(move)
                     
@@ -209,7 +215,6 @@ class MyChessGame():
         self.draw_game_end_screen()
         
     def run(self):
-
         while self.is_game_running:
             self.CLOCK.tick(self.FPS)
             for event in pygame.event.get():
@@ -217,7 +222,6 @@ class MyChessGame():
                     self.is_game_running = False
                 
                 self.handle_user_interaction(event)
-                
             
             
             self.draw()
