@@ -66,6 +66,7 @@ class MyChessGameUI():
         
         self.is_game_running = True
         
+        self.is_flipped = False
         self.board = board
         self.selected_square = None
         self.game_end_screen = False
@@ -138,7 +139,9 @@ class MyChessGameUI():
         mouse_pos = pygame.mouse.get_pos()
         x, y = mouse_pos
         row = y // self.TILE_SIZE
-        col = x // self.TILE_SIZE 
+        col = x // self.TILE_SIZE
+        if self.is_flipped:
+            row, col = 7 - row, 7 - col
         return chess.square(col, row)
 
     def draw_game_end_screen(self):
@@ -161,6 +164,10 @@ class MyChessGameUI():
             move = move[2:]
             letter, num_str = move[0],  move[1]
             x, y = cols[letter] * self.TILE_SIZE + (self.TILE_SIZE // 2), rows[num_str] * self.TILE_SIZE + (self.TILE_SIZE // 2)
+            if self.is_flipped:
+                x, y = self.get_tile_coordinates(7 - rows[num_str], 7 - cols[letter])
+            else:
+                x, y = self.get_tile_coordinates(rows[num_str], cols[letter])
             index = (x, y)
             moves.append(index)
         
@@ -180,6 +187,8 @@ class MyChessGameUI():
                 self.board.undo_last_move()
             if event.key == pygame.K_m:
                 self.draw_valid_moves()
+            if event.key == pygame.K_o:
+                self.is_flipped = not self.is_flipped
             if event.key == pygame.K_LEFT:
                 self.board.undo_last_move()
             if event.key == pygame.K_RIGHT:
@@ -210,6 +219,11 @@ class MyChessGameUI():
                         
                 self.selected_square = None
                 self.is_valid_moves_showing = False
+                
+    def get_tile_coordinates(self, row, col):
+        if self.is_flipped:
+            row, col = 7 - row, 7 - col
+        return col * self.TILE_SIZE, row * self.TILE_SIZE
                 
     def draw(self):
         self.draw_board()
