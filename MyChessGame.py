@@ -153,10 +153,7 @@ class MyChessGameUI():
     def draw_valid_moves(self):
         legal_moves = [str(move) for move in self.board.get_legal_moves(self.selected_square)]   
             
-        # Mapping of files ('a' to 'h') to indices (0 to 7)
         cols = {letter: index for index, letter in enumerate('abcdefgh')}
-
-        # Mapping of ranks ('1' to '8') to indices (0 to 7)
         rows = {str(index + 1): index for index in range(8)}
             
         moves = []
@@ -173,6 +170,11 @@ class MyChessGameUI():
         
         for pos in moves:
             pygame.draw.circle(self.SCREEN, self.COLORS["GRAY"], pos, 10)
+            
+    def get_tile_coordinates(self, row, col):
+        if self.is_flipped:
+            row, col = 7 - row, 7 - col
+        return col * self.TILE_SIZE, row * self.TILE_SIZE
 
     def handle_user_interaction(self, event):
         self.handle_key_down(event)
@@ -220,10 +222,7 @@ class MyChessGameUI():
                 self.selected_square = None
                 self.is_valid_moves_showing = False
                 
-    def get_tile_coordinates(self, row, col):
-        if self.is_flipped:
-            row, col = 7 - row, 7 - col
-        return col * self.TILE_SIZE, row * self.TILE_SIZE
+    
                 
     def draw(self):
         self.draw_board()
