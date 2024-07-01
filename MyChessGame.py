@@ -8,7 +8,7 @@ class MyChessGame():
         pygame.font.init() # you have to call this at the start, 
         self.FONT = pygame.font.SysFont('Arial', 30)
         self.SCREEN_WIDTH, self.SCREEN_HEIGHT = screen_width, screen_height
-        self.BOARD_WIDTH, self.BOARD_HEIGHT = 800, 800
+        self.BOARD_WIDTH, self.BOARD_HEIGHT = self.SCREEN_HEIGHT, self.SCREEN_HEIGHT
         self.TILE_SIZE = self.BOARD_WIDTH // 8
         self.SCREEN = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
         self.CLOCK = pygame.time.Clock()
@@ -116,12 +116,8 @@ class MyChessGame():
     def draw_valid_moves(self):
         legal_moves = [str(move) for move in self.board.legal_moves if move.from_square == self.selected_square]   
             
-        # Mapping of files ('a' to 'h') to indices (0 to 7)
         cols = {letter: index for index, letter in enumerate('abcdefgh')}
-
-        # Mapping of ranks ('1' to '8') to indices (0 to 7)
         rows = {str(index + 1): index for index in range(8)}
-            
             
         moves = []
         for move in legal_moves:
@@ -131,9 +127,20 @@ class MyChessGame():
             index = (x, y)
             moves.append(index)
             # print(index)
+            
+        def is_pos_occupied_by_enemy_piece(pos):
+            print(pos)
+            (x, y) = (pos[0] // self.TILE_SIZE, pos[1] // self.TILE_SIZE)
+            piece = self.board.piece_at((x,y))
+            if piece is not None and piece.color != self.board.turn:
+                return True
+            return False
         
         for pos in moves:
-            pygame.draw.circle(self.SCREEN, (100, 100, 100), pos, 10)
+            if is_pos_occupied_by_enemy_piece(pos):
+                pygame.draw.circle(self.SCREEN, (255, 100, 100), pos, self.BOARD_WIDTH // 80)
+            else:
+                pygame.draw.circle(self.SCREEN, (200, 200, 200), pos, self.BOARD_WIDTH // 80)
 
     def undo_last_move(self):
         if self.board.move_stack:
@@ -229,6 +236,6 @@ class MyChessGame():
             
 
 if __name__ == "__main__":
-    SCREEN_WIDTH, SCREEN_HEIGHT = 1200, 800
+    SCREEN_WIDTH, SCREEN_HEIGHT = 1200, 600
     game = MyChessGame(SCREEN_WIDTH, SCREEN_HEIGHT)
     game.run()
