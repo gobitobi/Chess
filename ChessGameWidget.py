@@ -1,20 +1,11 @@
-from kivy.app import App
-from kivy.uix.widget import Widget
-from kivy.uix.button import Button
-from kivy.graphics import Rectangle, Color, Ellipse
-from kivy.core.window import Window
-from kivy.uix.gridlayout import GridLayout
-from kivy.uix.label import Label
-from kivy.uix.popup import Popup
-from kivy.uix.textinput import TextInput
-from kivy.uix.floatlayout import FloatLayout
-from kivy.uix.boxlayout import BoxLayout
-from kivy.clock import Clock
-
-import os
 import chess
+from kivy.app import App
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.widget import Widget
+from kivy.graphics import Rectangle, Color, Ellipse
+from kivy.uix.label import Label
+from kivy.core.window import Window
 from ChessBoard import ChessBoard
-
 
 class ChessGameWidget(Widget):
     def __init__(self, board_width, board_height, **kwargs):
@@ -25,6 +16,9 @@ class ChessGameWidget(Widget):
         self.selected_square = None
         self.is_valid_moves_showing = False
         self.is_flipped = False
+        # self.y_bottom_right_corner = int(350 * 19.5 / 9)+10
+        self.x_bottom_left_corner, self.y_bottom_left_corner = self.pos
+        self.x_bottom_left_corner, self.y_bottom_left_corner = int(self.x_bottom_left_corner), int(self.y_bottom_left_corner)
 
         self.COLORS = {
             "WHITE": (238/255, 238/255, 210/255, 1), 
@@ -34,7 +28,7 @@ class ChessGameWidget(Widget):
         }
 
         self.piece_images = self.load_images()
-        self.bind(size=self.update_board, pos=self.update_board)
+        self.bind(size=self.draw_board, pos=self.draw_board)
 
     def load_images(self):
         pieces = ['P', 'R', 'N', 'B', 'Q', 'K', 'p', 'r', 'n', 'b', 'q', 'k']
@@ -44,14 +38,21 @@ class ChessGameWidget(Widget):
             images[piece] = f"assets/{piece_color}/{piece}.png"
         return images
 
-    def update_board(self, *args):
+    def draw_board(self, *args):
         self.canvas.clear()
         with self.canvas:
             for row in range(8):
                 for col in range(8):
+                    """
+                    y + self.pos[1] is the position of the board relative to where it is displayed in the main screen
+                    """
                     x, y = self.get_tile_coordinates(row, col)
+                    
+                    # Draw tiles (color, rect, etc)
                     Color(*self.COLORS["WHITE"] if (row + col) % 2 == 0 else self.COLORS["BLACK"])
                     Rectangle(pos=(x, y), size=(self.board_width / 8, self.board_height / 8))
+                    
+                    
                     if self.selected_square and chess.square(col, row) == self.selected_square:
                         Color(*self.COLORS["HIGHLIGHT_COLOR"])
                         Rectangle(pos=(x, y), size=(self.board_width / 8, self.board_height / 8))
@@ -64,15 +65,27 @@ class ChessGameWidget(Widget):
                 self.draw_valid_moves()
 
     def get_tile_coordinates(self, row, col):
-        if self.is_flipped:
-            row, col = 7 - row, 7 - col
-        return col * self.board_width / 8, row * self.board_height / 8
+        """
+        converts board indices to screen coordinates
+        """
+        # if self.is_flipped:
+        #     row, col = 7 - row, 7 - col
+        
+        tile_size = self.board_width / 8
+        # print(col*tile_size, row*tile_size)
+        return col * tile_size, row * tile_size + self.pos[1]
 
     def on_touch_down(self, touch):
-        row = int(touch.y // (self.board_height / 8))
+        print('BOTTOM LEFT CORNER OF GAME WIDGET: ', self.pos)
+        print('BOTTOM LEFT CORNER ## OF GAME WIDGET: ', self.x_bottom_left_corner)
+        row = int((touch.y-self.pos[1]) // (self.board_height / 8))
         col = int(touch.x // (self.board_width / 8))
-        if self.is_flipped:
-            row, col = 7 - row, 7 - col
+        
+        print('in on_touch_down(): ', row, col)
+        
+        # if self.is_flipped:
+        #     row, col = 7 - row, 7 - col
+        # row = 7 - row
         try:
             square = chess.square(col, row)
             player_color = self.chessboard.current_turn_color()
@@ -100,7 +113,7 @@ class ChessGameWidget(Widget):
         except Exception as e:
             print(e)
         else:
-            self.update_board()
+            self.draw_board()
 
     def draw_valid_moves(self):
         legal_moves = [str(move) for move in self.chessboard.get_legal_moves(self.selected_square)]
@@ -109,10 +122,14 @@ class ChessGameWidget(Widget):
                 move = move[2:]
                 col = 'abcdefgh'.index(move[0])
                 row = int(move[1]) - 1
-                # if self.is_flipped:
-                #     row, col = 7 - row, 7 - col
                 x, y = self.get_tile_coordinates(row, col)
                 Color(*self.COLORS["GRAY"])
                 Ellipse(pos=(x + self.board_width / 16 - 10, y + self.board_height / 16 - 10), size=(20, 20))
+
+    def undo_move(self):
+        self.chessboard.undo_last_move()
+
+    def redo_move(self):
+        self.chessboard.redo_last_move()
 
 

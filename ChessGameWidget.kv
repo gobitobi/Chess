@@ -1,0 +1,29 @@
+<ChessGameLayout>:
+    orientation: 'vertical'
+    padding: [0, 0, 0, 50]  # Padding at the bottom
+    ChessGameWidget:
+        id: chess_game
+        board_width: root.width
+        board_height: root.width  # Make the board square
+        size_hint: None, None
+        width: self.board_width
+        height: self.board_height
+    BoxLayout:
+        size_hint_y: None
+        height: 50
+        Button:
+            text: "<<"
+            on_press: chess_game.undo_move()
+             color: 1, 1, 1, 1  # White text color
+        Button:
+            text: ">>"
+            on_press: chess_game.redo_move()
+            color: 1, 1, 1, 1  # White text color
+
+<ChessGameWidget>:
+    canvas.before:
+        Color:
+            rgba: 0.8, 0.8, 0.8, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
