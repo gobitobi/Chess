@@ -109,7 +109,7 @@ class MyChessGame():
     def draw_game_end_screen(self):
         if self.game_end_screen:
             s = pygame.Surface((self.BOARD_WIDTH, self.BOARD_HEIGHT), pygame.SRCALPHA)   # per-pixel alpha
-            s.fill((150,150,150,128))                         # notice the alpha value in the color
+            s.fill((150,150,150,128)) # (R, G, B, alpha)
             self.SCREEN.blit(s, (0,0))
             
                  
