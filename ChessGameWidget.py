@@ -5,7 +5,19 @@ from kivy.uix.widget import Widget
 from kivy.graphics import Rectangle, Color, Ellipse
 from kivy.uix.label import Label
 from kivy.core.window import Window
+from kivy.uix.button import Button
 from ChessBoard import ChessBoard
+
+class CustomButton(Button):
+    def __init__(self, **kwargs):
+        super(CustomButton, self).__init__(**kwargs)
+        self.font_size = 20
+        self.color = (0, 0, 0, 1)  # White text color
+        self.background_normal = ''  # Remove the default background image
+        self.background_color = (0.3, 0.3, 0.3, 1)
+        self.size_hint = (None, None)
+        self.height = 200
+        self.width = 350
 
 class ChessGameWidget(Widget):
     def __init__(self, board_width, board_height, **kwargs):
@@ -16,9 +28,7 @@ class ChessGameWidget(Widget):
         self.selected_square = None
         self.is_valid_moves_showing = False
         self.is_flipped = False
-        # self.y_bottom_right_corner = int(350 * 19.5 / 9)+10
-        self.x_bottom_left_corner, self.y_bottom_left_corner = self.pos
-        self.x_bottom_left_corner, self.y_bottom_left_corner = int(self.x_bottom_left_corner), int(self.y_bottom_left_corner)
+        self.y_bot_left = self.pos[1] + 200 # 200 = Custom Button height
 
         self.COLORS = {
             "WHITE": (238/255, 238/255, 210/255, 1), 
@@ -28,7 +38,18 @@ class ChessGameWidget(Widget):
         }
 
         self.piece_images = self.load_images()
-        self.bind(size=self.draw_board, pos=self.draw_board)
+        self.bind(size=self._main, pos=self._main)
+        
+    def _main(self, *args):
+        buttons_layout = BoxLayout(orientation='horizontal')
+        
+         # Widgets to be added to layout
+        back_button = CustomButton(text="<<")
+        forward_button = CustomButton(text=">>")
+        buttons_layout.add_widget(back_button)
+        buttons_layout.add_widget(forward_button)
+        self.draw_board()
+        self.add_widget(buttons_layout)
 
     def load_images(self):
         pieces = ['P', 'R', 'N', 'B', 'Q', 'K', 'p', 'r', 'n', 'b', 'q', 'k']
@@ -39,7 +60,7 @@ class ChessGameWidget(Widget):
         return images
 
     def draw_board(self, *args):
-        self.canvas.clear()
+        # self.canvas.clear()
         with self.canvas:
             for row in range(8):
                 for col in range(8):
@@ -67,18 +88,17 @@ class ChessGameWidget(Widget):
     def get_tile_coordinates(self, row, col):
         """
         converts board indices to screen coordinates
+        (adjusts for board position in the main screen)
         """
         # if self.is_flipped:
         #     row, col = 7 - row, 7 - col
         
         tile_size = self.board_width / 8
-        # print(col*tile_size, row*tile_size)
-        return col * tile_size, row * tile_size + self.pos[1]
+        return col * tile_size, row * tile_size + self.y_bot_left
 
     def on_touch_down(self, touch):
         print('BOTTOM LEFT CORNER OF GAME WIDGET: ', self.pos)
-        print('BOTTOM LEFT CORNER ## OF GAME WIDGET: ', self.x_bottom_left_corner)
-        row = int((touch.y-self.pos[1]) // (self.board_height / 8))
+        row = int((touch.y-self.y_bot_left) // (self.board_height / 8))
         col = int(touch.x // (self.board_width / 8))
         
         print('in on_touch_down(): ', row, col)
